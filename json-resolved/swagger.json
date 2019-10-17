@@ -12,6 +12,9 @@
     "url" : "https://localhost/rest",
     "description" : "Development location"
   } ],
+  "security" : [ {
+    "basicAuth" : [ ]
+  } ],
   "paths" : {
     "/ssh/1.0/keys" : {
       "get" : {
@@ -124,6 +127,12 @@
             "description" : "The label given for the ssh-key."
           }
         }
+      }
+    },
+    "securitySchemes" : {
+      "basicAuth" : {
+        "type" : "http",
+        "scheme" : "basic"
       }
     }
   }
