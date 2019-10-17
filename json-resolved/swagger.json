@@ -6,16 +6,97 @@
     "version" : "1.0.0"
   },
   "servers" : [ {
+    "url" : "{server}/rest",
+    "description" : "Development location",
+    "variables" : {
+      "server" : {
+        "default" : "http://localhost"
+      }
+    }
+  }, {
     "url" : "https://virtserver.swaggerhub.com/Tes4637/Bitbucket/1.0.0",
     "description" : "SwaggerHub API Auto Mocking"
-  }, {
-    "url" : "https://localhost/rest",
-    "description" : "Development location"
   } ],
   "security" : [ {
     "basicAuth" : [ ]
   } ],
   "paths" : {
+    "/keys/1.0/projects/{projectKey}/repos/{repositorySlug}/ssh" : {
+      "get" : {
+        "summary" : "Retrieves the access keys for the repository identified in the URL.\n",
+        "operationId" : "getProjectWithRespositorySshKeys",
+        "parameters" : [ {
+          "name" : "projectKey",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "integer"
+          }
+        }, {
+          "name" : "repositorySlug",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "filter",
+          "in" : "query",
+          "description" : "if specified only SSH access keys with a label prefixed with the  supplied string will be returned\n",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "effective",
+          "in" : "query",
+          "description" : "Controls whether SSH access keys configured at the project level  should be included in the results or not. When set to true all keys  that have access to the repository (including project level keys)  are included in the results. When set to false, only access keys  configured for the specified repository are considered. Default is  false.\n",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "name" : "permission",
+          "in" : "query",
+          "description" : "if specified only SSH access keys with at least the supplied  permission will be returned Default is Permission.REPO_READ.\n",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "A page of ssh keys for the repository",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagesOfProjectRepositorySsh"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "One or more of the required parameters or attributes were missing/incorrectly  formatted/inappropriate in the given context\n"
+          },
+          "401" : {
+            "description" : "TODO\n"
+          },
+          "404" : {
+            "description" : "TODO\n"
+          }
+        }
+      }
+    },
     "/ssh/1.0/keys" : {
       "get" : {
         "summary" : "Retrieve a page of ssh keys.",
@@ -23,7 +104,7 @@
         "parameters" : [ {
           "name" : "user",
           "in" : "query",
-          "description" : "the username of the user to retrieve the keys for. If no username is specifie, the ssh keys will be retrieved for the current authenticated user.",
+          "description" : "the username of the user to retrieve the keys for. If no username  is specifie, the ssh keys will be retrieved for the current  authenticated user.\n",
           "required" : false,
           "style" : "form",
           "explode" : true,
@@ -59,7 +140,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/SshKeys"
+                  "$ref" : "#/components/schemas/PagesOfSshKeys"
                 }
               }
             },
@@ -80,7 +161,7 @@
   },
   "components" : {
     "schemas" : {
-      "SshKeys" : {
+      "Pagination" : {
         "type" : "object",
         "properties" : {
           "size" : {
@@ -105,10 +186,152 @@
           "values" : {
             "type" : "array",
             "items" : {
-              "$ref" : "#/components/schemas/SshKey"
+              "type" : "string"
             }
           }
         }
+      },
+      "PagesOfProjectRepositorySsh" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/Pagination"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "values" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/components/schemas/ProjectRepositorySsh"
+              }
+            }
+          }
+        } ]
+      },
+      "ProjectRepositorySsh" : {
+        "type" : "object",
+        "properties" : {
+          "key" : {
+            "$ref" : "#/components/schemas/SshKey"
+          },
+          "repository" : {
+            "$ref" : "#/components/schemas/Repository"
+          },
+          "permission" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Repository" : {
+        "type" : "object",
+        "properties" : {
+          "slug" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "integer"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "scmId" : {
+            "type" : "string"
+          },
+          "state" : {
+            "type" : "string"
+          },
+          "statusMessage" : {
+            "type" : "string"
+          },
+          "forkable" : {
+            "type" : "boolean"
+          },
+          "project" : {
+            "$ref" : "#/components/schemas/Project"
+          },
+          "public" : {
+            "type" : "boolean"
+          },
+          "links" : {
+            "$ref" : "#/components/schemas/Links"
+          }
+        }
+      },
+      "Links" : {
+        "type" : "object",
+        "properties" : {
+          "clone" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CloneLink"
+            }
+          },
+          "self" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Link"
+            }
+          }
+        }
+      },
+      "Link" : {
+        "type" : "object",
+        "properties" : {
+          "href" : {
+            "type" : "string"
+          }
+        }
+      },
+      "CloneLink" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/Link"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "name" : {
+              "type" : "string"
+            }
+          }
+        } ]
+      },
+      "Project" : {
+        "type" : "object",
+        "properties" : {
+          "key" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "integer"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "public" : {
+            "type" : "boolean"
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "links" : {
+            "$ref" : "#/components/schemas/Link"
+          }
+        }
+      },
+      "PagesOfSshKeys" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/Pagination"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "values" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/components/schemas/SshKey"
+              }
+            }
+          }
+        } ]
       },
       "SshKey" : {
         "type" : "object",
