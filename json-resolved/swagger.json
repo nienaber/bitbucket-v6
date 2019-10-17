@@ -1,0 +1,130 @@
+{
+  "openapi" : "3.0.0",
+  "info" : {
+    "title" : "Bitbucket v6",
+    "description" : "The bitbucket v6 code.",
+    "version" : "1.0.0"
+  },
+  "servers" : [ {
+    "url" : "https://virtserver.swaggerhub.com/Tes4637/Bitbucket/1.0.0",
+    "description" : "SwaggerHub API Auto Mocking"
+  }, {
+    "url" : "https://localhost/rest",
+    "description" : "Development location"
+  } ],
+  "paths" : {
+    "/ssh/1.0/keys" : {
+      "get" : {
+        "summary" : "Retrieve a page of ssh keys.",
+        "operationId" : "getKeys",
+        "parameters" : [ {
+          "name" : "user",
+          "in" : "query",
+          "description" : "the username of the user to retrieve the keys for. If no username is specifie, the ssh keys will be retrieved for the current authenticated user.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "Indicates how many results to return per page.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "start",
+          "in" : "query",
+          "description" : "Record count to start from.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "A page of ssh keys",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SshKeys"
+                }
+              }
+            },
+            "links" : {
+              "GetNextPage" : {
+                "operationId" : "getKeys",
+                "parameters" : {
+                  "limit" : "$response.body#/limit",
+                  "start" : "$response.body#/nextPageStart"
+                },
+                "description" : "The `limit` and `start` value returned in the response can be used  as the next page to get more keys.\n"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "SshKeys" : {
+        "type" : "object",
+        "properties" : {
+          "size" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "limits" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "isLastPage" : {
+            "type" : "boolean"
+          },
+          "start" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "nextPageStart" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "values" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SshKey"
+            }
+          }
+        }
+      },
+      "SshKey" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "description" : "Id of for the ssh-key",
+            "format" : "int64"
+          },
+          "text" : {
+            "type" : "string",
+            "description" : "The public key value."
+          },
+          "label" : {
+            "type" : "string",
+            "description" : "The label given for the ssh-key."
+          }
+        }
+      }
+    }
+  }
+}
